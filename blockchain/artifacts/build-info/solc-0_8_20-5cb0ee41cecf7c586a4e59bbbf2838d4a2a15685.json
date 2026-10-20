@@ -1,0 +1,46 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_20-5cb0ee41cecf7c586a4e59bbbf2838d4a2a15685",
+  "solcVersion": "0.8.20",
+  "solcLongVersion": "0.8.20+commit.a1b79de6",
+  "compilerType": "solc",
+  "userSourceNameMap": {
+    "contracts/StegoShareAccess.sol": "project/contracts/StegoShareAccess.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "shanghai",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/StegoShareAccess.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n/**\n * @title StegoShareAccess\n * @dev Decentralized access control smart contract for StegoShare.\n * Enforces role-based permissions and verification for encrypted & stego-hidden files.\n */\ncontract StegoShareAccess {\n    struct FileRecord {\n        string fileId;\n        address owner;\n        address authorizedReceiver;\n        string ipfsCid;\n        string fileHash;\n        uint256 timestamp;\n        bool isRevoked;\n        bool exists;\n    }\n\n    // Mapping from unique file ID to file record\n    mapping(string => FileRecord) private files;\n\n    // Mapping from owner address to list of registered file IDs\n    mapping(address => string[]) private ownerFiles;\n\n    // Mapping from receiver address to list of shared file IDs\n    mapping(address => string[]) private receiverFiles;\n\n    // Events\n    event FileRegistered(\n        string indexed fileId,\n        address indexed owner,\n        address indexed authorizedReceiver,\n        string ipfsCid,\n        string fileHash,\n        uint256 timestamp\n    );\n\n    event AccessRevoked(\n        string indexed fileId,\n        address indexed owner,\n        uint256 timestamp\n    );\n\n    event AccessRestored(\n        string indexed fileId,\n        address indexed owner,\n        uint256 timestamp\n    );\n\n    event OwnershipTransferred(\n        string indexed fileId,\n        address indexed oldOwner,\n        address indexed newOwner\n    );\n\n    // Modifiers\n    modifier fileMustExist(string memory fileId) {\n        require(files[fileId].exists, \"StegoShare: File record does not exist\");\n        _;\n    }\n\n    modifier onlyFileOwner(string memory fileId) {\n        require(files[fileId].exists, \"StegoShare: File record does not exist\");\n        require(files[fileId].owner == msg.sender, \"StegoShare: Caller is not the file owner\");\n        _;\n    }\n\n    /**\n     * @notice Register a newly secured file with access permissions on blockchain\n     * @param fileId Unique identifier for the file\n     * @param authorizedReceiver Address authorized to decrypt the file\n     * @param ipfsCid IPFS Content Identifier where stego image is pinned\n     * @param fileHash SHA-256 integrity hash of original confidential file\n     */\n    function registerFile(\n        string memory fileId,\n        address authorizedReceiver,\n        string memory ipfsCid,\n        string memory fileHash\n    ) external {\n        require(bytes(fileId).length > 0, \"StegoShare: File ID cannot be empty\");\n        require(authorizedReceiver != address(0), \"StegoShare: Invalid receiver address\");\n        require(!files[fileId].exists, \"StegoShare: File ID already registered\");\n        require(bytes(ipfsCid).length > 0, \"StegoShare: IPFS CID cannot be empty\");\n        require(bytes(fileHash).length > 0, \"StegoShare: File hash cannot be empty\");\n\n        files[fileId] = FileRecord({\n            fileId: fileId,\n            owner: msg.sender,\n            authorizedReceiver: authorizedReceiver,\n            ipfsCid: ipfsCid,\n            fileHash: fileHash,\n            timestamp: block.timestamp,\n            isRevoked: false,\n            exists: true\n        });\n\n        ownerFiles[msg.sender].push(fileId);\n        receiverFiles[authorizedReceiver].push(fileId);\n\n        emit FileRegistered(\n            fileId,\n            msg.sender,\n            authorizedReceiver,\n            ipfsCid,\n            fileHash,\n            block.timestamp\n        );\n    }\n\n    /**\n     * @notice Verify whether a user is authorized to access the file\n     * @param fileId Unique identifier of the file\n     * @param user Address of the user to verify\n     * @return isAuthorized True if user is owner or active authorized receiver\n     * @return role \"OWNER\", \"RECEIVER\", \"REVOKED\", or \"UNAUTHORIZED\"\n     */\n    function verifyAccess(string memory fileId, address user)\n        external\n        view\n        fileMustExist(fileId)\n        returns (bool isAuthorized, string memory role)\n    {\n        FileRecord memory f = files[fileId];\n\n        if (user == f.owner) {\n            return (true, \"OWNER\");\n        }\n\n        if (f.isRevoked) {\n            return (false, \"REVOKED\");\n        }\n\n        if (user == f.authorizedReceiver) {\n            return (true, \"RECEIVER\");\n        }\n\n        return (false, \"UNAUTHORIZED\");\n    }\n\n    /**\n     * @notice Get file metadata\n     * @param fileId Unique identifier of the file\n     */\n    function getFileMetadata(string memory fileId)\n        external\n        view\n        fileMustExist(fileId)\n        returns (\n            address owner,\n            address authorizedReceiver,\n            string memory ipfsCid,\n            string memory fileHash,\n            uint256 timestamp,\n            bool isRevoked\n        )\n    {\n        FileRecord memory f = files[fileId];\n        return (\n            f.owner,\n            f.authorizedReceiver,\n            f.ipfsCid,\n            f.fileHash,\n            f.timestamp,\n            f.isRevoked\n        );\n    }\n\n    /**\n     * @notice Revoke access permissions for the authorized receiver\n     * @param fileId Unique identifier of the file\n     */\n    function revokeAccess(string memory fileId) external onlyFileOwner(fileId) {\n        require(!files[fileId].isRevoked, \"StegoShare: Access already revoked\");\n        files[fileId].isRevoked = true;\n        emit AccessRevoked(fileId, msg.sender, block.timestamp);\n    }\n\n    /**\n     * @notice Restore access permissions for the authorized receiver\n     * @param fileId Unique identifier of the file\n     */\n    function restoreAccess(string memory fileId) external onlyFileOwner(fileId) {\n        require(files[fileId].isRevoked, \"StegoShare: Access is not revoked\");\n        files[fileId].isRevoked = false;\n        emit AccessRestored(fileId, msg.sender, block.timestamp);\n    }\n\n    /**\n     * @notice Transfer ownership of the file to another address\n     * @param fileId Unique identifier of the file\n     * @param newOwner Address of new owner\n     */\n    function transferOwnership(string memory fileId, address newOwner)\n        external\n        onlyFileOwner(fileId)\n    {\n        require(newOwner != address(0), \"StegoShare: Invalid new owner address\");\n        address oldOwner = files[fileId].owner;\n        files[fileId].owner = newOwner;\n        emit OwnershipTransferred(fileId, oldOwner, newOwner);\n    }\n\n    /**\n     * @notice Get all file IDs created by owner\n     */\n    function getFilesByOwner(address owner) external view returns (string[] memory) {\n        return ownerFiles[owner];\n    }\n\n    /**\n     * @notice Get all file IDs shared with receiver\n     */\n    function getFilesByReceiver(address receiver) external view returns (string[] memory) {\n        return receiverFiles[receiver];\n    }\n}\n"
+      }
+    }
+  }
+}
