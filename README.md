@@ -1,206 +1,183 @@
 # 🔐 StegoShare
 
-> **Secure File Sharing Using Blockchain, AES-256 Encryption, Image Steganography, IPFS, and Blockchain-Based Access Control**
+**Secure File Sharing Using AES-256 Encryption, Image Steganography, IPFS, and Blockchain-Based Access Control**
 
-StegoShare is a complete, production-grade decentralized cybersecurity platform engineered for zero-trust confidential file sharing. It bridges AES-256 symmetric cryptography, 24-bit RGB Least Significant Bit (LSB) image steganography, decentralized IPFS storage, and Solidity smart contracts for immutable wallet-based access permissions.
+StegoShare is a final-year project designed to improve the confidentiality and controlled sharing of digital files. It combines file encryption, image steganography, decentralized storage, and blockchain-based wallet authorization in a secure file-sharing workflow.
 
----
+## 📌 Project Overview
 
-## 🏛️ System Architecture Workflow
+Sharing confidential files online can create risks involving unauthorized access, data exposure, and file tampering. StegoShare explores a multi-layered approach to secure file sharing by encrypting a file, embedding the encrypted data into an image, storing the resulting image using IPFS, and managing access permissions through a smart contract.
 
-```
+## ✨ Key Features
+
+- **AES-256 Encryption:** Encrypts file contents before embedding them into an image.
+- **Image Steganography:** Uses Least Significant Bit (LSB) techniques to hide encrypted data within a carrier image.
+- **IPFS Storage:** Supports decentralized storage and retrieval of shared assets.
+- **Blockchain Access Control:** Uses a smart contract to manage authorized access to shared files.
+- **MetaMask Integration:** Connects Ethereum-compatible wallets for access authorization.
+- **SHA-256 Integrity Checking:** Supports hash-based integrity verification when implemented and enabled in the file recovery workflow.
+- **Access Revocation:** Allows the file owner to revoke a receiver's permission, subject to the deployed contract and application implementation.
+
+## 🏗️ System Workflow
+
+```text
 Confidential File
-      ↓
-File Upload & Validation
-      ↓
-AES-256-CBC Encryption (Unique 32-byte Key & 16-byte IV)
-      ↓
-SHA-256 Integrity Hash Generated
-      ↓
-Encrypted Payload Packaged with Binary Metadata Header
-      ↓
-LSB Steganography: Hidden inside Carrier Image RGB Channels
-      ↓
-Stego Image Uploaded to Decentralized IPFS Storage
-      ↓
-IPFS Content Identifier (CID) Generated
-      ↓
-File Metadata & Access Permissions Recorded on Blockchain Smart Contract
-      ↓
-Authorized Receiver Receives Secure Share Link (/access/:fileId)
-      ↓
-Receiver Connects MetaMask Ethereum Wallet
-      ↓
-Smart Contract / Ledger Verifies Wallet Address
-      ↓
-[If Authorized]:
-  ├── 1. Retrieve Stego Image from IPFS
-  ├── 2. Extract Hidden Binary Encrypted Payload
-  ├── 3. Verify SHA-256 Integrity Hash (Tamper Detection)
-  ├── 4. Decrypt with AES-256 Cryptographic Key
-  └── 5. Download Original Confidential File
-[If Unauthorized / Revoked]:
-  └── ⛔ ACCESS DENIED (File Recovery is Blocked)
+       |
+       v
+File Validation
+       |
+       v
+AES-256 Encryption
+       |
+       v
+SHA-256 Integrity Hash
+       |
+       v
+LSB Image Steganography
+       |
+       v
+Upload Stego Image to IPFS
+       |
+       v
+Obtain IPFS CID
+       |
+       v
+Register File and Access Permissions
+       |
+       v
+Receiver Connects Wallet
+       |
+       v
+Verify Access Permission
+       |
+       +---- Authorized
+       |         |
+       |         v
+       |    Retrieve Stego Image
+       |         |
+       |         v
+       |    Extract Encrypted Data
+       |         |
+       |         v
+       |    Verify Integrity
+       |         |
+       |         v
+       |    Decrypt and Recover File
+       |
+       +---- Unauthorized
+                 |
+                 v
+             Access Denied
 ```
-
----
-
-## 🚀 Key Features
-
-- 🔒 **AES-256 Military-Grade Encryption**: Protects file contents using 256-bit keys and random initialization vectors (IVs).
-- 🖼️ **Lossless LSB Steganography**: Embeds encrypted ciphertext directly into PNG pixel RGB channels with pre-flight capacity verification.
-- 🌐 **Decentralized IPFS Storage**: Live Pinata IPFS pinning with automatic local IPFS gateway fallback for zero-friction local testing.
-- ⛓️ **Solidity Access Control Smart Contracts**: Enforces role-based permissions (`registerFile`, `verifyAccess`, `revokeAccess`).
-- 🦊 **MetaMask Web3 Authentication**: Zero-trust identity verification using Ethereum wallet signatures and addresses.
-- 🛡️ **Cryptographic Tamper Detection**: SHA-256 hash comparison ensures files have not been modified or corrupted during transit.
-- 💎 **Cybersecurity SaaS UI**: Dark theme, glowing glassmorphic panels, monospace cryptographic artifacts, and real-time interactive recovery workflows.
-
----
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
+| Component | Technologies |
 |---|---|
-| **Frontend** | React 19, Vite, JavaScript, Lucide Icons, Modern CSS Design System |
-| **Backend** | Node.js, Express, Multer, Sharp (Image processing), Crypto module |
-| **Blockchain** | Solidity `^0.8.20`, Hardhat, Ethers.js v6 |
-| **Storage** | IPFS (InterPlanetary File System), Pinata SDK, Local IPFS Gateway |
-
----
+| Frontend | React, Vite, JavaScript, CSS |
+| Backend | Node.js, Express |
+| Image Processing | Sharp |
+| Cryptography | AES-256, SHA-256, Node.js Crypto |
+| Blockchain | Solidity, Hardhat, Ethers.js |
+| Wallet | MetaMask |
+| Storage | IPFS, Pinata |
 
 ## 📂 Project Structure
 
-```
+```text
 Stegoshare/
 ├── backend/
 │   ├── controllers/
-│   │   └── fileController.js        # File processing, access verification, recovery
-│   ├── services/
-│   │   ├── cryptoService.js         # AES-256 encryption, decryption, SHA-256 hashing
-│   │   ├── stegoService.js          # LSB bitwise embedding and extraction
-│   │   ├── ipfsService.js           # Pinata & local IPFS decentralized storage
-│   │   └── blockchainService.js     # Access ledger & smart contract integration
 │   ├── routes/
-│   │   └── fileRoutes.js            # REST API endpoints
-│   ├── data/
-│   │   └── records.json             # On-chain verified file access records
-│   ├── uploads/                     # Temporary staging for uploads
-│   ├── encrypted/                   # Encrypted ciphertext storage
-│   ├── stego/                       # Generated stego PNG images
-│   ├── ipfs/                        # IPFS pinned asset storage
-│   ├── recovered/                   # Decrypted plaintext output
-│   ├── server.js                    # Express server entrypoint
+│   ├── services/
+│   ├── server.js
 │   └── package.json
 ├── blockchain/
 │   ├── contracts/
-│   │   └── StegoShareAccess.sol     # Solidity access control smart contract
 │   ├── scripts/
-│   │   └── deploy.js                # Hardhat deployment script
-│   ├── hardhat.config.js
 │   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx           # Brand, navigation, MetaMask & test wallet switcher
-│   │   │   ├── Hero.jsx             # Hero section with live security metrics
-│   │   │   ├── ProtocolSection.jsx  # 5-step animated protocol pipeline
-│   │   │   ├── SecurityFeatures.jsx # 6 cybersecurity capability cards
-│   │   │   ├── Footer.jsx           # Footer links
-│   │   │   └── Modals.jsx           # Privacy, Terms, Audit & Compliance modals
-│   │   ├── pages/
-│   │   │   ├── SharePage.jsx        # 4-step upload, steganography & live progress
-│   │   │   ├── SecuredStatusPage.jsx# Artifacts, IPFS CID, TxHash, Copy buttons
-│   │   │   └── AccessPage.jsx       # Secure Access Portal & 5-step file recovery
-│   │   ├── services/
-│   │   │   ├── api.js               # Backend REST API client
-│   │   │   └── web3.js              # MetaMask provider & test account simulation
-│   │   ├── App.jsx                  # Main application router
-│   │   ├── App.css                  # Cybersecurity SaaS component styles
-│   │   └── index.css                # Global design system tokens & grid theme
 │   └── package.json
+├── .gitignore
 └── README.md
 ```
 
----
+*The structure above is a simplified overview. Folder and file names may vary depending on the current implementation.*
 
-## ⚡ Quick Start Guide
+## ⚙️ Prerequisites
 
-### Prerequisites
-- Node.js `v18+` or `v20+` (Installed: Node `v22.23.2`)
-- npm `v9+`
+Install the following before running the application:
 
-### 1. Start the Backend Server
+- Node.js and npm
+- Git
+- MetaMask browser extension
+- A local Hardhat blockchain for local smart-contract testing
+- IPFS/Pinata configuration if required by your current backend setup
+
+## 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Manushya2003/StegoShare.git
+cd StegoShare
+```
+
+Install dependencies and start the backend in a terminal:
+
 ```bash
 cd backend
 npm install
 node server.js
 ```
-*Backend runs on `http://localhost:5000` with local IPFS gateway at `http://localhost:5000/ipfs/`.*
 
-### 2. Start the Frontend Application
+Start the frontend in a **separate terminal**:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*Frontend runs on `http://localhost:5173`.*
 
----
+Start and configure the local blockchain in another terminal if required by your application. Deploy the smart contract and configure the contract address and RPC URL according to your local setup.
 
-## 🧪 Step-by-Step Demonstration & Testing
+Open the frontend URL displayed by Vite in the terminal. It is commonly `http://localhost:5173`.
 
-### Test 1: Share & Secure a Confidential File
-1. Open the frontend at `http://localhost:5173`.
-2. Click **"Share a File"** in the navigation bar.
-3. **Step 1:** Select any confidential document (e.g. `secret.txt`, `contract.pdf`).
-4. **Step 2:** Select a carrier image (PNG format). The capacity meter shows available bytes.
-5. **Step 3:** Enter the authorized receiver's Ethereum address (Click **"Test Receiver Account #1"** to auto-fill `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`).
-6. Click **"Secure & Process File"**.
-7. Watch the real-time 8-stage cryptographic execution log.
-8. Upon completion, the **Asset Secured** page will display:
-   - **IPFS CID** (with 1-click Copy)
-   - **Blockchain Transaction Hash** (with 1-click Copy)
-   - **File ID** (with 1-click Copy)
-   - **SHA-256 Hash** (with 1-click Copy)
-   - **Secure Share Link** (`http://localhost:5173/access/stego-...`)
+**Configuration note:** Follow the environment variable names in the project's `.env.example` files. Never commit real API tokens, passwords, private keys, or wallet recovery phrases.
 
----
+## 🧪 Testing the Application
 
-### Test 2: Access & File Recovery (Authorized Receiver)
-1. Click **"Test Access in Portal"** or navigate to `http://localhost:5173/access/{fileId}`.
-2. In the top right wallet dropdown or central card, connect with **Account #1 (Authorized Receiver)** `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`.
-3. The portal displays **"ACCESS AUTHORIZED"**.
-4. Run the **5-Step Interactive Recovery**:
-   - **Step 1:** Retrieve Stego Image from IPFS.
-   - **Step 2:** Extract Encrypted Payload via LSB steganography.
-   - **Step 3:** Verify SHA-256 Hash Integrity (Tamper check passes).
-   - **Step 4:** Decrypt File with AES-256 key.
-   - **Step 5:** Click **"Download Original File"** to download the exact recovered plaintext file!
+Use test files and local development accounts when demonstrating the project.
 
----
+1. **File sharing:** Select a file and a suitable carrier image.
+2. **Encryption and embedding:** Run the file-processing workflow.
+3. **IPFS storage:** Check the returned CID and confirm the asset can be retrieved.
+4. **Authorized access:** Connect the wallet assigned permission to the file.
+5. **File recovery:** Extract the embedded payload, verify integrity if enabled, and decrypt the file.
+6. **Unauthorized access:** Connect a wallet without permission and confirm access is denied.
+7. **Access revocation:** If supported by the deployed smart contract, revoke receiver access and test again.
 
-### Test 3: Zero-Trust Denial (Unauthorized Attacker)
-1. On the same Access Portal, switch wallet to **Account #2 (Unauthorized User)** `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`.
-2. The portal immediately switches to **"ACCESS DENIED"**.
-3. All extraction and decryption actions are strictly locked. No plaintext data is exposed.
+Expected results should be confirmed against the running application before being presented as verified test outcomes.
 
----
+## 🔒 Security Considerations
 
-### Test 4: Owner Access Revocation
-1. Connect with **Account #0 (File Owner)** `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`.
-2. Scroll to the **Owner Access Control** section and click **"Revoke Receiver Access"**.
-3. Now switch back to **Account #1 (Receiver)**. Notice that access is immediately **REVOKED** and recovery is disabled!
-4. Switch back to Owner and click **"Restore Receiver Access"** to re-enable permissions.
+- Encrypt files before embedding them into carrier images.
+- Keep encryption keys separate from public storage and source code.
+- Treat IPFS CIDs as content identifiers, not as access-control mechanisms.
+- Verify that authorization is enforced by the backend and/or smart contract, not just by hiding frontend buttons.
+- Use cryptographically secure key and IV generation and authenticate encrypted data where supported.
+- SHA-256 can help detect changes when the expected hash is trusted, but it does not by itself provide confidentiality or prove who created a file.
+- Local Hardhat accounts are for development and testing only. Never publish real wallet secrets.
 
----
+## 🎯 Project Objectives
 
-## 🔒 Security Guarantees
-- **Confidentiality:** Files are encrypted with AES-256 before steganographic embedding.
-- **Stealth:** Carrier images appear completely normal to human perception.
-- **Integrity:** SHA-256 hashes are verified on-chain before recovery.
-- **Non-Repudiation:** Access grants and revocations are logged as immutable blockchain events.
-
----
+- Improve file confidentiality through encryption.
+- Hide encrypted file data within a carrier image using steganography.
+- Explore decentralized storage with IPFS.
+- Control file access using blockchain-based permissions.
+- Support file integrity checking during recovery.
 
 ## 📄 License
-MIT © 2026 StegoShare Project. All rights reserved.
+
+A license has not yet been specified for this repository. Add a `LICENSE` file if you decide to distribute the project under an open-source license.
