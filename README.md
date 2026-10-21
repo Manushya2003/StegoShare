@@ -178,6 +178,6 @@ Expected results should be confirmed against the running application before bein
 - Control file access using blockchain-based permissions.
 - Support file integrity checking during recovery.
 
-## 📄 License
+##  License
 
 A license has not yet been specified for this repository. Add a `LICENSE` file if you decide to distribute the project under an open-source license.
