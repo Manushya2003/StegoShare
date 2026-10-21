@@ -1,14 +1,14 @@
-# 🔐 StegoShare
+#  StegoShare
 
 **Secure File Sharing Using AES-256 Encryption, Image Steganography, IPFS, and Blockchain-Based Access Control**
 
 StegoShare is a final-year project designed to improve the confidentiality and controlled sharing of digital files. It combines file encryption, image steganography, decentralized storage, and blockchain-based wallet authorization in a secure file-sharing workflow.
 
-## 📌 Project Overview
+##  Project Overview
 
 Sharing confidential files online can create risks involving unauthorized access, data exposure, and file tampering. StegoShare explores a multi-layered approach to secure file sharing by encrypting a file, embedding the encrypted data into an image, storing the resulting image using IPFS, and managing access permissions through a smart contract.
 
-## ✨ Key Features
+##  Key Features
 
 - **AES-256 Encryption:** Encrypts file contents before embedding them into an image.
 - **Image Steganography:** Uses Least Significant Bit (LSB) techniques to hide encrypted data within a carrier image.
@@ -18,7 +18,7 @@ Sharing confidential files online can create risks involving unauthorized access
 - **SHA-256 Integrity Checking:** Supports hash-based integrity verification when implemented and enabled in the file recovery workflow.
 - **Access Revocation:** Allows the file owner to revoke a receiver's permission, subject to the deployed contract and application implementation.
 
-## 🏗️ System Workflow
+##  System Workflow
 
 ```text
 Confidential File
@@ -70,7 +70,7 @@ Verify Access Permission
              Access Denied
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Component | Technologies |
 |---|---|
@@ -82,7 +82,7 @@ Verify Access Permission
 | Wallet | MetaMask |
 | Storage | IPFS, Pinata |
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 Stegoshare/
@@ -105,7 +105,7 @@ Stegoshare/
 
 *The structure above is a simplified overview. Folder and file names may vary depending on the current implementation.*
 
-## ⚙️ Prerequisites
+##  Prerequisites
 
 Install the following before running the application:
 
@@ -115,7 +115,7 @@ Install the following before running the application:
 - A local Hardhat blockchain for local smart-contract testing
 - IPFS/Pinata configuration if required by your current backend setup
 
-## 🚀 Getting Started
+##  Getting Started
 
 Clone the repository:
 
@@ -146,7 +146,7 @@ Open the frontend URL displayed by Vite in the terminal. It is commonly `http://
 
 **Configuration note:** Follow the environment variable names in the project's `.env.example` files. Never commit real API tokens, passwords, private keys, or wallet recovery phrases.
 
-## 🧪 Testing the Application
+##  Testing the Application
 
 Use test files and local development accounts when demonstrating the project.
 
@@ -160,7 +160,7 @@ Use test files and local development accounts when demonstrating the project.
 
 Expected results should be confirmed against the running application before being presented as verified test outcomes.
 
-## 🔒 Security Considerations
+##  Security Considerations
 
 - Encrypt files before embedding them into carrier images.
 - Keep encryption keys separate from public storage and source code.
@@ -170,7 +170,7 @@ Expected results should be confirmed against the running application before bein
 - SHA-256 can help detect changes when the expected hash is trusted, but it does not by itself provide confidentiality or prove who created a file.
 - Local Hardhat accounts are for development and testing only. Never publish real wallet secrets.
 
-## 🎯 Project Objectives
+##  Project Objectives
 
 - Improve file confidentiality through encryption.
 - Hide encrypted file data within a carrier image using steganography.
